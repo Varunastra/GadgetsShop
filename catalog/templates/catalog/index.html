@@ -1,0 +1,515 @@
+{% load static %}
+<!DOCTYPE HTML>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="author" content="I'm est content">
+
+	<title>{% block title %}Главная{% endblock %} - A$ket Shop</title>
+
+	<link rel="shortcut icon" type="image/x-icon" href="{% static 'images/logo.png' %}">
+
+	<!-- jQuery -->
+	<script src="{% static 'js/jquery-2.0.0.min.js' %}" type="text/javascript"></script>
+
+	<!-- Bootstrap4 files-->
+	<script src="{% static 'js/bootstrap.bundle.min.js' %}" type="text/javascript"></script>
+	<link href="{% static 'css/bootstrap.css' %}" rel="stylesheet" type="text/css" />
+
+	<!-- Font awesome 5 -->
+	<link href="{% static 'fonts/fontawesome/css/fontawesome-all.min.css' %}" type="text/css" rel="stylesheet">
+
+	<!-- plugin: owl carousel  -->
+	<link href="{% static 'plugins/owlcarousel/assets/owl.carousel.min.css' %}" rel="stylesheet">
+	<link href="{% static 'plugins/owlcarousel/assets/owl.theme.default.css' %}" rel="stylesheet">
+	<script src="{% static 'plugins/owlcarousel/owl.carousel.min.js' %}"></script>
+
+
+	{% block styles %}
+
+	{% endblock %}
+	<!-- custom style -->
+	<link href="{% static 'css/ui.css' %}" rel="stylesheet" type="text/css" />
+	<link href="{% static 'css/responsive.css' %}" rel="stylesheet" media="only screen and (max-width: 1200px)" />
+
+	{% block scripts %}
+
+	{% endblock %}
+
+
+
+	<!-- custom javascript -->
+	<script src="{% static 'js/script.js' %}" type="text/javascript"></script>
+
+
+
+
+
+	<script type="text/javascript">
+		/// some script
+		// some scripts
+		function getCookie(name) {
+			var cookieValue = null;
+			if (document.cookie && document.cookie !== '') {
+				var cookies = document.cookie.split(';');
+				for (var i = 0; i < cookies.length; i++) {
+					var cookie = jQuery.trim(cookies[i]);
+					// Does this cookie string begin with the name we want?
+					if (cookie.substring(0, name.length + 1) === (name + '=')) {
+						cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+						break;
+					}
+				}
+			}
+			return cookieValue;
+		}
+
+		// jquery ready start
+		async function updateCart() {
+			list = await getCart();
+			len = list.length;
+			dropdown = document.getElementById("dropdown-article");
+			document.getElementById("badge").innerHTML = len;
+			dropdown.innerHTML = "";
+			for (let i = 0; i < len; i++) {
+				string = `<figure class="media">
+                    <div class="img-wrap"><img src="{{ BASE_URL }}/media/${list[i][0].first_image}" style="width:40px; height:auto;"
+                        class="img-thumbnail"></div>
+                    <figcaption class="media-body">
+                        <a href="{{ BASE_URL }}/${list[i][0].category}/${list[i][0].slug}">${list[i][0].title}</a> <br>
+                            <span class="text-muted">${list[i][0].price} $</span>
+							<small> Количество: <strong> ${list[i][1]} </strong> </small>
+                    </figcaption>
+                    <button type="button" onclick="removeCart('${list[i][0].id}');" class="close" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </figure> <!-- media.// --> 
+                <hr>`;
+				dropdown.innerHTML += string;
+			}
+			if (len == 0)
+				dropdown.innerHTML = "<small> Здесь пока ничего нет </small>";
+			else
+				dropdown.innerHTML += `{% if user.is_authenticated %} 
+										<div class="container d-flex justify-content-center"> 
+											<a href="{% url 'checkout' %}" class="btn btn-primary btn-sm btn-round">
+												 Оформить заказ 
+												 </a> 
+											</div> 
+									 	{% else %} 
+										<div class="container d-flex justify-content-center">
+											<small>
+												Вы должны войти, для совершения покупки
+											</small>
+												</div>
+										{% endif %}`;
+
+		};
+
+		function removeCart(id) {
+			const token = getCookie('csrftoken');
+			const headers = new Headers({
+				'X-CSRFToken': token,
+				'Content-Type': 'application/json',
+				'X-Requested-With': 'XMLHttpRequest'
+			});
+			fetch("{% url 'cart_remove' %}", {
+				method: "POST",
+				headers,
+				mode: "cors",
+				body: JSON.stringify({ id })
+			}).then((response) => { updateCart() });
+		}
+
+		function addToCart(id, quantity) {
+			const token = getCookie('csrftoken')
+			const headers = new Headers({
+				'X-CSRFToken': token,
+				// 'Accept': 'application/json, text/plain, */*',
+				'Content-Type': 'application/json',
+				'X-Requested-With': 'XMLHttpRequest'
+			});
+			fetch("{% url 'cart_add' %}", {
+				method: "POST",
+				headers,
+				mode: "cors",
+				body: JSON.stringify({ id, quantity })
+			}).then((response) => { updateCart() });
+		};
+
+
+		async function getCart() {
+			const data = await fetch('{% url "cart" %}');
+			const cart = await data.json();
+			return cart;
+		};
+
+		window.onload = function () {
+			updateCart();
+		};
+
+
+
+		$(document).ready(function () {
+			$('.btn-outline-primary').click(function (e) {
+				var id = $(e.target).attr('id');
+				var quantity = $('#select-' + id + ' option:selected').val();
+				addToCart(id, quantity);
+			});
+
+			// const cart = $('#cart-dropdown');
+			// const user = $('#user-dropdown');
+
+			// cart.mouseenter( function() {
+			// 	cart.find('.dropdown-menu').show();
+			// });
+
+			// cart.mouseleave( function() {
+			// 	cart.find('.dropdown-menu').hide();
+			// });
+
+			// user.mouseenter( function() {
+			// 	user.find('.dropdown-menu').show();
+			// });
+
+			// user.mouseleave( function() {
+			// 	user.find('.dropdown-menu').hide();
+			// });
+
+			
+		});
+
+
+
+
+
+// jquery end
+	</script>
+
+	<script>
+		function getRating() {
+			const elements = [...document.getElementsByClassName("text-muted rating")];
+			elements.forEach(element => {
+				const rating = element.getAttribute('name').split('rating-')[1]
+				element.innerHTML = '&#9733'.repeat(rating) + '&#9734;'.repeat(5 - rating)
+			});
+		};
+
+		$(document).ready(function () {
+			getRating()
+		});
+	</script>
+
+
+</head>
+
+<body>
+	<header class="section-header">
+
+		<section class="header-main shadow-sm">
+			<div class="container">
+				<div class="row align-items-center">
+					<div class="col-lg-3 col-sm-4">
+						<div class="brand-wrap">
+							<img class="logo rounded" src="{% static 'images/logo.png' %}">
+							<h2 class="logo-text"><a href="/" class="text-dark no-underline">Магазин a$ket'а</a></h2>
+						</div> <!-- brand-wrap.// -->
+					</div>
+					<div class="col-lg-4 col-xl-5 col-sm-8">
+						<form action="{% url 'search_view' %}" class="search-wrap" method="get">
+							<div class="input-group w-100">
+								<input type="text" name="title" class="form-control" style="width:55%;"
+									placeholder="Поиск">
+								<select class="custom-select" name="category_name">
+									<option value="">Все</option>
+									<option value="phones">Телефоны</option>
+									<option value="tablets">Планшеты</option>
+								</select>
+								<div class="input-group-append">
+									<button class="btn btn-primary" type="submit">
+										<i class="fa fa-search"></i>
+									</button>
+								</div>
+							</div>
+						</form> <!-- search-wrap .end// -->
+					</div> <!-- col.// -->
+					<div class="col-lg-5 col-xl-4 col-sm-12">
+						<div class="widgets-wrap d-inline">
+							<div class="widget-header float-left">
+								<div class="icontext">
+									<div class="dropdown" id="cart-dropdown">
+										<a href="#" class="b" data-toggle="dropdown" data-offset="20,10">
+											<div class="row">
+												<div class="text-wrap">
+													<span class="small badge badge-danger" id="badge">0</span>
+													<div>Cart</div>
+												</div>
+												<div class="icon-wrap ml-1"><i
+														class="icon-sm round border fa fa-shopping-cart"></i>
+												</div>
+											</div>
+										</a>
+										<div class="dropdown-menu dropdown-menu-right"
+											style="min-width: 250px; position: absolute; transform: translate3d(-87px, 43px, 0px); top: 0px; left: 0px; will-change: transform;"
+											x-placement="bottom-end">
+											<article class="p-2" id="dropdown-article">
+												<div class="text-center">
+													<strong>Здесь пока ничего нет</strong>
+												</div>
+												<a href="#" class="btn btn-primary btn-sm btn-round"> Оформить заказ
+												</a>
+											</article>
+										</div> <!--  dropdown-menu .// -->
+									</div> <!-- text-wrap.// -->
+								</div> <!-- icontext.// -->
+							</div>
+							<div class="widget-header ml-4">
+								<a href="#">
+									<div class="icontext">
+										{% if user.is_authenticated %}
+										<div class="dropdown pr-2" id="user-dropdown">
+											<a href="#" class="b" data-toggle="dropdown" data-offset="20,10">
+												<div class="row">
+													<div class="icon-wrap">
+														<div class="icon-wrap"><i
+																class="icon-sm round border fa fa-user"></i></div>
+													</div>
+												</div>
+											</a>
+											<div class="dropdown-menu dropdown-menu-right"
+												style="min-width: 250px; position: absolute; transform: translate3d(-87px, 43px, 0px); top: 0px; left: 0px; will-change: transform;"
+												x-placement="bottom-end">
+												<article class="p-2">
+													<div class="row justify-content-md-center">
+														<i class="icon-sm fa fa-address-book col-1"
+															aria-hidden="true"></i>
+														<strong
+															class="title text-muted col-md-auto align-self-center"><a
+																href="{% url 'orders' %}">Перейти в
+																заказы</a></strong>
+													</div>
+												</article>
+											</div> <!--  dropdown-menu .// -->
+										</div> <!-- text-wrap.// -->
+										{% endif %}
+										<!-- <div class="icon-wrap"><i class="icon-sm round border fa fa-user"></i></div> -->
+										<div class="text-wrap">
+											{% if user.is_authenticated %}
+											<small class="title text-muted">Привет, {{ user.username }}!</small><a
+												href="{% url 'logout' %}">Выйти</a>
+											{% else %}
+											<small><a href="{% url 'login' %}">Войти</a> | <a
+													href="{% url 'signup' %}">Зарегистроваться</a></small>
+											{% endif %}
+										</div>
+									</div>
+								</a>
+							</div> <!-- widget-header .// -->
+						</div> <!-- widgets-wrap.// -->
+					</div> <!-- col.// -->
+				</div> <!-- row.// -->
+			</div> <!-- container.// -->
+		</section> <!-- header-main .// -->
+	</header> <!-- section-header.// -->
+
+	{% block content %}
+	<section class="bg2">
+		<div class="container">
+			<div class="row no-gutters">
+				<div class="col-lg-9 offset-lg-5-24">
+					<nav class="navbar navbar-expand-lg navbar-light">
+						<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main_nav"
+							aria-controls="main_nav" aria-expanded="false" aria-label="Toggle navigation">
+							<span class="navbar-toggler-icon"></span>
+						</button>
+						<div class="collapse navbar-collapse" id="main_nav">
+							<ul class="navbar-nav">
+								<li class="nav-item">
+									<a class="nav-link" href="{{ BASE_URL }}"> Главная </a>
+								</li>
+								<!-- <li class="nav-item">
+									<a class="nav-link" href="#">New arrival</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" href="#">Populars</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" href="#">Deals</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" href="#">Last viewed</a>
+								</li>
+								<li class="nav-item dropdown">
+									<a class="nav-link dropdown-toggle" href="http://example.com" id="dropdown07"
+										data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More</a>
+									<div class="dropdown-menu" aria-labelledby="dropdown07">
+										<a class="dropdown-item" href="#">Foods and Drink</a>
+										<a class="dropdown-item" href="#">Home interior</a>
+										<div class="dropdown-divider"></div>
+										<a class="dropdown-item" href="#">Category 1</a>
+										<a class="dropdown-item" href="#">Category 2</a>
+										<a class="dropdown-item" href="#">Category 3</a>
+									</div>
+								</li> -->
+							</ul>
+						</div> <!-- collapse.// -->
+					</nav>
+				</div> <!-- col.// -->
+			</div> <!-- row.// -->
+		</div> <!-- container .// -->
+	</section>
+
+	<!-- ========================= SECTION MAIN ========================= -->
+	<section class="section-main bg padding-bottom">
+		<div class="container">
+			<div class="row no-gutters border border-top-0 bg-white">
+				<aside class="col-lg-5-24">
+					<nav>
+						<div class="title-category bg-secondary white d-none d-lg-block" style="margin-top:-53px">
+							<span>Категории</span>
+						</div>
+						<ul class="menu-category">
+							<li> <a href="/phones">Телефоны </a></li>
+							<li> <a href="/tablets">Планшеты </a></li>
+							<li> <a href="/headphones">Наушники </a></li>
+							<li> <a href="/covers">Чехлы </a></li>
+							<li> <a href="/sdcards">SD-карты </a></li>
+							<li> <a href="/cables">Кабеля </a></li>
+							<!-- <li class="has-submenu"> <a href="#">More category <i
+										class="icon-arrow-right pull-right"></i></a>
+								<ul class="submenu">
+									<li> <a href="#">Food &amp Beverage </a></li>
+									<li> <a href="#">Home Equipments </a></li>
+									<li> <a href="#">Machinery Items </a></li>
+									<li> <a href="#">Toys & Hobbies </a></li>
+									<li> <a href="#">Consumer Electronics </a></li>
+									<li> <a href="#">Home & Garden </a></li>
+									<li> <a href="#">Beauty & Personal Care </a></li>
+								</ul>
+							</li> -->
+						</ul>
+					</nav>
+				</aside> <!-- col.// -->
+				<main class="col-lg-19-24">
+					<!-- ========= intro aside ========= -->
+					<div class="row no-gutters">
+						<div class="col-lg-9 col-md-8">
+							<!-- ================= main slide ================= -->
+
+							<div class="owl-init slider-main owl-carousel" data-items="1" data-margin="1"
+								data-nav="true" data-dots="false">
+								<div class="item-slide">
+									<img src="{% static 'images/banners/carousel1.jpg' %}">
+								</div>
+								<div class="item-slide">
+									<img src="{% static 'images/banners/carousel2.jpg' %}">
+								</div>
+								<div class="item-slide">
+									<img src="{% static 'images/banners/carousel3.jpg' %}">
+								</div>
+							</div>
+
+							<!-- ============== main slidesow .end // ============= -->
+						</div> <!-- col.// -->
+						<div class="col-lg-3 col-md-4">
+							<img src="{% static 'images/banner.png' %}" class="img-fluid">
+						</div> <!-- col.// -->
+					</div> <!-- row.// -->
+					<!-- ======== intro aside ========= .// -->
+				</main> <!-- col.// -->
+			</div> <!-- row.// -->
+		</div> <!-- container .//  -->
+	</section>
+	<!-- ========================= SECTION MAIN END// ========================= -->
+
+	<!-- ========================= SECTION CONTENT ========================= -->
+	<!-- <section class="section-content padding-y">
+		<div class="container">
+
+
+			<header class="section-heading">
+				<h3 class="title-section">Main section is here</h3>
+			</header>
+
+			<article>
+
+
+
+			</article>
+
+
+		</div> 
+	</section> -->
+
+	<section class="section-request bg padding-y-sm">
+		<div class="container">
+			<header class="section-heading heading-line">
+				<h4 class="title-section bg text-uppercase">Популярные вещи</h4>
+			</header>
+
+			<div class="row-sm">
+				{% for item in object_list %}
+				<div class="col-md-2" id="{{ item.id }}">
+					<figure class="card card-product d-flex">
+						<div class="text-center">
+							<div class="img-wrap col align-self-center"><img src="{{ item.first_image.url }}"></div>
+							<figcaption class="info-wrap">
+								<h6 class="title "><a href="{{ item.category }}/{{ item.slug }}">{{ item.title }}</a>
+								</h6>
+
+								<div class="price-wrap">
+									<span class="price-new">{{ item.price }} $</span>
+								</div> <!-- price-wrap.// -->
+
+								<a id="{{ item.id }}" class="btn btn-outline-primary mt-3">
+									Добавить в
+									корзину </a>
+
+								<div class="container pt-2">
+									<small>Количество:</small>
+									<select id="select-{{ item.id }}">
+										<option value="1">1</option>
+										<option value="2">2</option>
+										<option value="3">3</option>
+										<option value="4">4</option>
+										<option value="5">5</option>
+									</select>
+								</div>
+						</div>
+
+						</figcaption>
+					</figure> <!-- card // -->
+				</div> <!-- col // -->
+				{% endfor %}
+
+			</div> <!-- row.// -->
+
+
+		</div><!-- container // -->
+	</section>
+
+	{% endblock %}
+
+	<!-- ========================= SECTION CONTENT END// ========================= -->
+
+	<!-- ========================= FOOTER ========================= -->
+	<footer class="section-footer bg2">
+		<div class="container">
+			<section class="footer-bottom row">
+				<p> Сделано by A$ket</p>
+				<div class="col-sm-6">
+					<p class="text-sm-right">
+						Copyright &copy 2019 <br>
+					</p>
+				</div>
+			</section> <!-- //footer-top -->
+		</div><!-- //container -->
+	</footer>
+	<!-- ========================= FOOTER END // ========================= -->
+
+
+</body>
+
+</html>

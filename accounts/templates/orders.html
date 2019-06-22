@@ -1,0 +1,81 @@
+{% extends 'catalog/index.html' %}
+
+{% block scripts %}
+
+{% endblock %}
+
+{% block title %}Мои заказы{% endblock %}
+
+{% block content %}
+
+<section class="section-content bg padding-y border-top">
+    <div class="container">
+
+        <div class="row">
+            <main class="col-sm-9">
+
+                <div class="card">
+                    <div class="container">
+                        {% for order in object_list %}
+                        <div>
+                            <div class="text-center p-2"><strong>Заказ от {{ order.date }}</strong></div>
+                            {% for cart in order.cart_set.all %}
+                            <div class="p-2">
+                                <figure class="media">
+                                    <div class="img-wrap" style="width:80px; height:auto">
+                                        <img src="{{ cart.item.first_image.url }}">
+                                    </div>
+                                    <figcaption class="media-body">
+                                        <h6 class="title text-truncate">{{ cart.item.title }}</h6>
+                                        <dl class="dlist-inline small">
+                                                <dt>Статус:</dt>
+                                                <dd>
+                                                    {{ order.status }}
+                                                </dd>
+                                            </dl>
+                                        <dl class="dlist-inline small">
+                                            <dt>Рейтинг: </dt>
+                                            <dd><small class="text-muted rating" name="rating-{{ cart.item.rating }}"
+                                                    style="font-size: medium">&#9733; &#9733; &#9733; &#9733;
+                                                    &#9734;</small></dd>
+                                        </dl>
+                                        <dl class="dlist-inline small">
+                                            <dt>
+                                                Цена:
+                                            </dt>
+                                            <dd>{{ cart.item.price }} $</dd>
+                                        </dl>
+                                        <dl class="dlist-inline small">
+                                            <dt>Количество:</dt>
+                                            <dd>
+                                                {{ cart.quantity }}
+                                            </dd>
+                                        </dl>
+                                    </figcaption>
+                                </figure>
+                                <hr style="border-top: 1px dotted #8c8b8b;">
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <hr>
+                        {% endfor %}
+                    </div>
+
+                </div> <!-- card.// -->
+
+            </main> <!-- col.// -->
+            <aside class="col-sm-3" id="aside">
+
+
+            </aside> <!-- col.// -->
+
+        </div>
+
+
+
+    </div> <!-- container .//  -->
+
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends 'catalog/item_view.html' %}
+
+{% block content %}
+<div class="container">
+
+    <div class="card">
+        <div class="row no-gutters">
+            <aside class="col-sm-5 border-right">
+                <article class="gallery-wrap">
+                    <div class="img-big-wrap">
+                        <div class="container"><a href="{{ object.first_image.url }}" data-lightbox="roadtrip"><img
+                                    src="{{ object.first_image.url }}" class="img-fluid"></a></div>
+                    </div> <!-- slider-product.// -->
+                    <div class="img-small-wrap">
+                        <div class="item-gallery"> <a href="{{ object.second_image.url }}" data-lightbox="roadtrip"><img
+                                    src="{{ object.second_image.url }}"></a></div>
+                    </div> <!-- slider-nav.// -->
+                </article> <!-- gallery-wrap .end// -->
+            </aside>
+            <aside class="col-sm-7">
+                <article class="p-5">
+                    <h3 class="title">{{ object.title }}</h3>
+
+                    <div class="rating-wrap mb-3">
+                        <div id="stars_rating">
+                            <small class="text-muted rating" name="rating-{{ object.rating }}"
+                                style="font-size: x-large"> &#9733; &#9733;
+                                &#9733; &#9733; &#9734;</small>
+                        </div>
+                    </div> <!-- rating-wrap.// -->
+
+                    <div class="mb-3">
+                        <var class="price h3 text-warning">
+                            <span class="currency">US $</span><span class="num">{{ object.price }}</span>
+                        </var>
+                    </div> <!-- price-detail-wrap .// -->
+                    <!-- <dl>
+      <dt>Description</dt>
+      <dd><p>Here goes description consectetur adipisicing elit, sed do eiusmod
+    tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+    quis nostrud exercitation ullamco </p></dd>
+    </dl> -->
+                    <dl class="row">
+                        <dt class="col-sm-3">Тип</dt>
+                        <dd class="col-sm-9">{{ object.type }}</dd>
+
+                        <dt class="col-sm-3">Соединение</dt>
+                        <dd class="col-sm-9">{{ object.communication }}</dd>
+
+                        <dt class="col-sm-3">Произвоитель</dt>
+                        <dd class="col-sm-9">{{ object.manufacter }}</dd>
+
+                        <dt class="col-sm-3">Максимальная частота</dt>
+                        <dd class="col-sm-9">{{ object.frequency }}</dd>
+
+                        <dt class="col-sm-3">Разьем</dt>
+                        <dd class="col-sm-9">{{ object.connectors }}</dd>
+
+                    </dl>
+
+                    <!-- col.// -->
+                    <hr>
+                    <div class="col-sm-5">
+                        <dl class="dlist-inline">
+                            <dd class="mb-3">
+                                <a href="#" class="btn  btn-outline-primary" id="{{ object.id }}"> <i
+                                        class="fas fa-shopping-cart"></i>
+                                    Добавить в корзину </a>
+                            </dd>
+                            <dt>Количество: </dt>
+                            <dd>
+                                <select id="select-{{ object.id }}" class="form-control form-control-sm">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                </select>
+                            </dd>
+                        </dl> <!-- item-property .// -->
+                    </div>
+                </article> <!-- card-body.// -->
+            </aside> <!-- col.// -->
+        </div> <!-- row.// -->
+    </div> <!-- card.// -->
+
+</div>
+
+
+{% endblock %}

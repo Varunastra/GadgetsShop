@@ -1,0 +1,12 @@
+{% extends 'catalog/categories/accessories.html' %}
+{% block title %}Наушники{% endblock %}
+{% block options %}
+<dl class="dlist-inline">
+    <dt class="mr-3">Максимальная частота:</dt>
+    <dd>{{ item.frequency }}</dd>
+</dl> <!-- item-property-hor .// -->
+<dl class="dlist-inline">
+    <dt class="mr-3">Разьем:</dt>
+    <dd>{{ item.connectors }}</dd>
+</dl>
+{% endblock %}

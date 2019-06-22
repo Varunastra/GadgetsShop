@@ -1,0 +1,17 @@
+{% extends 'catalog/index.html' %}
+
+{% block title %}{{ object.title }}{% endblock %}
+
+{% load static %}
+
+{% block styles %}
+
+<link href="{% static 'css/lightbox.css' %}" rel="stylesheet">
+
+{% endblock %}
+
+{% block scripts %}
+
+<script src="{% static 'js/lightbox.js' %}"></script>
+
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends 'catalog/index.html' %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block styles %}
+<link href="{% static 'css/accounts.css' %}" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block title %}Регистрация{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
+      <div class="card card-signin my-5">
+        <div class="card-body">
+          <h5 class="card-title text-center">Регистрация</h5>
+          <form class="form-signin" method="post">
+            {% csrf_token %}
+            <div class="form-label-group">
+              {{ form.username|add_class:"form-control"|attr:"autofocus"|attr:"id: inputUsername" }}
+              <label for="inputUsername">Имя пользователя</label>
+            </div>
+
+            <div class="form-label-group">
+              {{ form.email|add_class:"form-control"|attr:"autofocus"|attr:"id: inputEmail" }}
+              <label for="inputEmail">E-mail</label>
+            </div>
+
+            <!-- <div class="form-label-group">
+              {{ form.first_name|add_class:"form-control"|attr:"autofocus"|attr:"id: FirstName" }}
+              <label for="FirstName">Имя</label>
+            </div>
+
+            <div class="form-label-group">
+              {{ form.last_name|add_class:"form-control"|attr:"autofocus"|attr:"id: FirstName" }}
+              <label for="FirstName">Фамилия</label>
+            </div> -->
+
+            <div class="form-label-group">
+              {{ form.age|add_class:"form-control"|attr:"autofocus"|attr:"id: Age" }}
+              <label for="Age">Возраст</label>
+            </div>
+
+            <div class="container text-left">
+              <small class="ml-2" style="color:#777">Пол</small>
+            </div>
+
+              <div class="form-label-group">
+                {{ form.gender|add_class:"form-control"|attr:"autofocus"|attr:"id: Gender" }}
+              </div>
+           
+            <div class="form-label-group">
+              {{ form.password1|add_class:"form-control"|attr:"id=inputPassword" }}
+              <label for="inputPassword">Пароль</label>
+            </div>
+
+            <div class="form-label-group">
+              {{ form.password2|add_class:"form-control"|attr:"id=inputPassword2" }}
+              <label for="inputPassword2">Подтверждение пароля</label>
+            </div>
+
+            <hr class="my-1">
+
+            {% if form.errors %}
+            <div class="content p-2 text-center">
+              <strong class="text-danger">Неправильное имя пользователя или пароль</strong>
+            </div>
+            {% endif %}
+
+            <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">Зарегестрироваться</button>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

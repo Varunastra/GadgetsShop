@@ -1,0 +1,171 @@
+{% extends 'catalog/index.html' %}
+
+{% block scripts %}
+<script>
+
+    async function updateCheckout() {
+        list = await getCart();
+        document.getElementById('product_list').innerHTML = '';
+        total_price = 0;
+        const selectors = new Array();
+        for (let i = 0; i < list.length; i++) {
+            total_price += parseInt(list[i][0].price * list[i][1]);
+            document.getElementById('product_list').innerHTML += `<tr>
+                                    <td>
+                                        <figure class="media">
+                                            <div class="img-wrap"><img src="{{ BASE_URL }}/media/${list[i][0].first_image}"
+                                                    class="img-thumbnail" style="width: 80px; height:auto;"></div>
+                                            <figcaption class="media-body">
+                                                <h6 class="title text-truncate">${list[i][0].title}</h6>
+                                                <dl class="dlist-inline small">
+                                                    <dt>Изготовитель: </dt>
+                                                    <dd>${list[i][0].manufacter}</dd>
+                                                </dl>
+                                                <dl class="dlist-inline small">
+                                                    <dt>Рейтинг: </dt>
+                                                    <dd><small class="text-muted rating" name="rating-${list[i][0].rating}"
+                                                    style="font-size: medium">&#9733; &#9733; &#9733; &#9733;
+                                                    &#9734;</small></dd>
+                                                </dl>
+                                            </figcaption>
+                                        </figure>
+                                    </td>
+                                    <td>
+                                        <select class="form-control" id="selector-${list[i][0].id}" onchange="OnSelectChange(this);">
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                            <option value="4">4</option>
+                                            <option value="5">5</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <div class="price-wrap">
+                                            <var class="price">USD ${list[i][0].price}</var>
+                                        </div> <!-- price-wrap .// -->
+                                    </td>
+                                    <td class="text-right">
+                                        <a href="" class="btn btn-danger" onclick="removeCart('${list[0][i].id}');"> Удалить</a>
+                                    </td>
+                                </tr> `;
+            selectors.push('selector-' + list[i][0].id);
+        };
+        for (let i = 0; i < selectors.length; i++)
+            document.getElementById(selectors[i]).selectedIndex = list[i][1] - 1;
+
+
+        document.getElementById('aside').innerHTML = `
+        <p class="alert alert-success">Доставка осуществляется бесплатно для регионов CIS</p>
+                <dl class="dlist-align">
+                    <dt>Общая цена</dt>
+                    <dd class="text-right" id="total_price">${total_price.toFixed(2)}</dd>
+                </dl>
+                <dl class="dlist-align">
+                    <dt>Скидка</dt>
+                    <dd class="text-right" id="discount_value">USD 0</dd>
+                </dl>
+                <dl class="dlist-align h4">
+                    <dt>Итого:</dt>
+                    <dd class="text-right"><strong id="final_price">${total_price.toFixed(2)}</strong></dd>
+                </dl>
+                <hr>
+                <div class="container d-flex justify-content-center pt-4">
+                            <a href="{% url 'checkout_submit' %}" class="btn btn-success"> Оформить заказ</a>
+                    </div>`;
+
+    };
+
+    $(document).ready(function () {
+        updateCheckout()
+    });
+
+    function OnSelectChange(select) {
+        const quantity = select.options[select.selectedIndex].value;
+        const id = select.id.split('-')[1];
+        console.log(id, quantity);
+        addToCart(id, quantity);
+    };
+
+    function onDiscountSubmit() {
+        const body = JSON.stringify(document.getElementById('discount').value);
+        const token = getCookie('csrftoken');
+        const headers = new Headers({
+            'X-CSRFToken': token,
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        });
+        fetch("{% url 'discount_submit' %}", {
+            method: "POST",
+            headers,
+            mode: "cors",
+            body,
+        }).then((response) => { return response.json() }).then((data) => { applyDiscount(data) });
+    };
+
+    function applyDiscount(data) {
+        if (data.length > 0) {
+            const price = document.getElementById('total_price').innerHTML
+            const discount = discount_value.innerHTML = (data[0].amount * price).toFixed(2);
+            final_price.innerHTML = (price - discount).toFixed(2)
+            discount_alert.innerHTML = '<p class="alert alert-success">Скидка успешно добавлена</p>'
+        }
+        else {
+            discount_value.innerHTML = 0
+            final_price.innerHTML = document.getElementById('total_price').innerHTML
+            discount_alert.innerHTML = '<p class="alert alert-danger">Ошибка, нет такого купона</p>'
+        }
+    };
+
+</script>
+{% endblock %}
+
+{% block content %}
+<!-- ========================= SECTION CONTENT ========================= -->
+<section class="section-content bg padding-y border-top">
+    <div class="container">
+
+        <div class="row">
+            <main class="col-sm-9">
+
+                <div class="card">
+                    <table class="table table-hover shopping-cart-wrap">
+                        <thead class="text-muted">
+                            <tr>
+                                <th scope="col">Товар</th>
+                                <th scope="col" width="10%">Количество</th>
+                                <th scope="col" width="10%">Цена</th>
+                                <th scope="col" class="text-right" width="10%">Действие</th>
+                            </tr>
+                        </thead>
+                        <tbody id="product_list">
+
+                        </tbody>
+                    </table>
+
+                </div> <!-- card.// -->
+
+                <div class="container mt-4 row">
+                    <strong class="col-2 text-center p-2">Код скидки: </strong>
+                    <input type="text" class="col-3 mr-3" id="discount">
+                    <button class="btn btn-warning col-2" id="discount_submit"
+                        onclick="onDiscountSubmit();">Применить</button>
+                </div>
+                <div class="container mt-4" id="discount_alert">
+
+                </div>
+            </main> <!-- col.// -->
+            <aside class="col-sm-3" id="aside">
+
+
+            </aside> <!-- col.// -->
+
+        </div>
+
+
+
+    </div> <!-- container .//  -->
+
+
+</section>
+<!-- ========================= SECTION CONTENT END// ========================= -->
+{% endblock %}
